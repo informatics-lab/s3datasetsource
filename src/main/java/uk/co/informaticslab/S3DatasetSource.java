@@ -59,7 +59,7 @@ public class S3DatasetSource implements DatasetSource {
             path = path.substring(PREFIX.length());
         }
         if (!path.endsWith(".nc")) {
-            path = path.substring(0, path.indexOf(".nc"));
+            path = path.substring(0, path.indexOf(".nc") + 3);
         }
         String s3Url = "s3://" + path;
         return s3Url;

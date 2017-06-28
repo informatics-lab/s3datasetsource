@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(mockit.integration.junit4.JMockit.class)
 public class S3DatasetSourceTest {
 
-    private static final String TEST_PATH = "/s3/mogreps-g/prods_op_mogreps-g_20160101_00_00_015.nc";
+    private static final String TEST_PATH = "/s3/mogreps-g/prods_op_mogreps-g_20160101_00_00_015.nc.html";
 
     @Tested
     private S3DatasetSource ds;
