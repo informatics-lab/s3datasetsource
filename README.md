@@ -11,7 +11,8 @@ Follow the documentation on the [thredds DatasetSource plugin page][2].
 
 ## Building
 `$ mvn install` - build the plugin.  
-Built artifact can be found in the target directory: `<project root>/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar`  
+Built artifact can be found in the target directory:  
+`<project root>/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar`  
 
 ## Running  
 `$ docker-compose up` - builds and starts the thredds TDS with the supplied configuration.   
