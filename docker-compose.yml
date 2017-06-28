@@ -9,4 +9,5 @@ services:
     volumes:
       - ./catalog.xml:/usr/local/tomcat/content/thredds/catalog.xml
       - ./threddsConfig.xml:/usr/local/tomcat/content/thredds/threddsConfig.xml
+      - ./log4j.xml:/usr/local/tomcat/webapps/thredds/WEB-INF/log4j.xml
       - ./target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar:/usr/local/tomcat/webapps/thredds/WEB-INF/lib/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar
