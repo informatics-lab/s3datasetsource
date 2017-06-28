@@ -1,4 +1,4 @@
-# S3 Dataset Source Plugin for [Unidata's THREDDS Project][1]).
+# S3 Dataset Source Plugin for [Unidata's THREDDS Project][1].
 
 Provides a simple implementation of the [thredds DatasetSource interface][2].  
 Allows datasets to reside in, and be accessed directly from S3 via the [THREDDS Data Server (TDS)][3].
@@ -11,7 +11,8 @@ Follow the documentation on the [thredds DatasetSource plugin page][2].
 
 ## Building
 `$ mvn install` - build the plugin.  
-Built artifact can be found in the target directory: `<project root>/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar`  
+Built artifact can be found in the target directory:  
+`<project root>/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar`  
 
 ## Running  
 `$ docker-compose up` - builds and starts the thredds TDS with the supplied configuration.   
