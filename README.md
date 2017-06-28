@@ -1,4 +1,4 @@
-# S3 Dataset Source Plugin for [Unidata's THREDDS Project][1]).
+# S3 Dataset Source Plugin for [Unidata's THREDDS Project][1].
 
 Provides a simple implementation of the [thredds DatasetSource interface][2].  
 Allows datasets to reside in, and be accessed directly from S3 via the [THREDDS Data Server (TDS)][3].
