@@ -12,10 +12,16 @@ Follow the documentation on the [thredds DatasetSource plugin page][2].
 ## Building
 `$ mvn install` - build the plugin.  
 Built artifact can be found in the target directory:  
-`<project root>/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar`  
+`<project root>/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
-## Running  
-`$ docker-compose up` - builds and starts the thredds TDS with the supplied configuration.   
+Note that there is no need to build this project if you are using the Docker image.
+
+## Running
+Store your AWS credentials in a file called `aws.env` in the root directory. You have to have a (free) AWS account to access this data.
+
+`$ docker-compose up` - builds and starts the thredds TDS with the supplied configuration.
+
+The data can then be seen at `http://localhost/thredds/catalogue.html
 
 ### Credit  
 [@jamesmcclain](https://github.com/jamesmcclain) original author of S3RandomAccessFile.
