@@ -65,15 +65,15 @@ def write_inventory_names_file(bucket_name, region='eu-west-2'):
     return manifest_fname
 
 
-def update_threeds_catalogue(local_manifest_fname, catalogue_file_template, catalogue_file):
+def update_threeds_catalogue(local_manifest_fname, bucket_name, catalogue_file_template, catalogue_file):
     loader = jinja.FileSystemLoader('/usr/local/src/')
     env = jinja.Environment(loader=loader)
     template = env.get_template(catalogue_file_template)
     
     with open(local_manifest_fname, 'r') as fin:
         obj_names = fin.read().splitlines()
-        output_from_parsed_template = template.render(obj_names=obj_names,
-                                                      bucket_name='mogreps-g')
+        output_from_parsed_template = template.render(obj_names=obj_names[:10],
+                                                      bucket_name=bucket_name)
     with open(catalogue_file, 'w') as fout:
         fout.write(output_from_parsed_template)
     
@@ -87,7 +87,7 @@ if __name__=='__main__':
     for bucket_name, template_catalogue_file, catalogue_file in bucket_catalogue_parts:
         print(bucket_name)
         manifest_fname = write_inventory_names_file(bucket_name)
-        update_threeds_catalogue(manifest_fname, template_catalogue_file, catalogue_file)
+        update_threeds_catalogue(manifest_fname, bucket_name, template_catalogue_file, catalogue_file)
     
     print("Thredds catalogue "+catalogue_file+" updated")
 

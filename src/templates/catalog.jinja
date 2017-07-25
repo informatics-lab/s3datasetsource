@@ -9,7 +9,7 @@
     <!-- url path to match with bucket/key in aws -->
     {% for obj_name in obj_names %}
     <dataset name="{{obj_name}}" ID="{{obj_name}}" serviceName="odap" urlPath="s3/{{bucket_name}}/{{obj_name}}" />
-    
+
     {% endfor %}
 
     <service name="all" base="" serviceType="compound">
