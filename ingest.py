@@ -23,9 +23,11 @@ AWS credentials must have access to S3.
 def write_inventory_names_file(bucket_name, region='eu-west-2'):
     """
     AWS splits the filenames over a bunch of UID names files.
-    For a given dates, it defines which files are relevant in
-    a different files (a sort of inventory of the inventory files).
-    This gets the inventory inventory...
+    For a given date, it defines which files are relevant in
+    a seperate file (a sort of inventory of the inventory files).
+    This interogates the inventory of inventories, downloads the
+    relevant files, and glues the consituent objects together
+    in a list.
 
     """
     s3 = boto.resource('s3',
@@ -65,30 +67,62 @@ def write_inventory_names_file(bucket_name, region='eu-west-2'):
     return manifest_fname
 
 
-def update_threeds_catalogue(local_manifest_fname, bucket_name, catalogue_file_template, catalogue_file):
-    loader = jinja.FileSystemLoader('/usr/local/src/')
+def update_a_thredds_catalog(local_manifest_fname,
+                                bucket_name,
+                                catalog_file_template,
+                                catalog_file,
+                                templates_dir='/usr/local/src/'):
+    """
+    takes a local file list of s3 objects ("local_manifest_fname")
+    in a bucket ("bucket_name") and writes a THREDDs config file
+    called catalog_file based on catalog_file_template.
+
+    """
+    loader = jinja.FileSystemLoader(templates_dir)
     env = jinja.Environment(loader=loader)
-    template = env.get_template(catalogue_file_template)
+    template = env.get_template(catalog_file_template)
     
     with open(local_manifest_fname, 'r') as fin:
         obj_names = fin.read().splitlines()
         output_from_parsed_template = template.render(obj_names=obj_names[:10],
                                                       bucket_name=bucket_name)
-    with open(catalogue_file, 'w') as fout:
+    with open(catalog_file, 'w') as fout:
+        fout.write(output_from_parsed_template)
+
+
+def update_main_thredds_catalog(dataset_names,
+                                catalog_file="catalog"
+                                templates_dir='/usr/local/src/')):
+    loader = jinja.FileSystemLoader('/usr/local/src/')
+    env = jinja.Environment(loader=loader)
+    template = env.get_template(catalog_file+".jinja")
+    output_from_parsed_template = template.render(dataset_names=dataset_names)
+    with open(catalog_file+".xml", 'w') as fout:
         fout.write(output_from_parsed_template)
     
 
 if __name__=='__main__':
+    """
+    command line arguments are "dataset names" These names should be
+
+    1) the name of the s3 bucket
+    2) the name of the jinja template (minus the file ending)
+    3) the name of the generated THREDDs xml file (minus the file ending)
+
+    """
     print("Getting inventory from s3 for...")
 
-    catalog_file = sys.argv[1]
-    bucket_catalogue_parts = [('mogreps-uk', 'catalog.jinja', catalog_file)]
+    datset_names = sys.argv[1:]
     
-    for bucket_name, template_catalogue_file, catalogue_file in bucket_catalogue_parts:
-        print(bucket_name)
-        manifest_fname = write_inventory_names_file(bucket_name)
-        update_threeds_catalogue(manifest_fname, bucket_name, template_catalogue_file, catalogue_file)
+    for dataset_name in dataset_names:
+        print(dataset_name)
+        manifest_fname = write_inventory_names_file(dataset_name)
+        update_a_thredds_catalog(manifest_fname,
+                                 dataset_name,
+                                 dataset_name+".jinja",
+                                 dataset_name+".xml")
     
-    print("Thredds catalogue "+catalogue_file+" updated")
+    update_main_thredds_catalog(dataset_names)
+    print("Thredds catalogue updated")
 
 
