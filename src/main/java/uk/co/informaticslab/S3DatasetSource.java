@@ -5,6 +5,8 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.retry.PredefinedRetryPolicies;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thredds.servlet.DatasetSource;
@@ -17,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.codahale.metrics.MetricRegistry.name;
+
 /**
  * {@link DatasetSource} implementation to read directly from s3
  */
@@ -26,6 +30,8 @@ public class S3DatasetSource implements DatasetSource {
     private static final Regions MY_S3_DATA_REGION = Regions.EU_WEST_2;
     private static final String PREFIX = "/s3/";
 
+    private final Timer rafTimer = Constants.METRICS.timer(name(S3DatasetSource.class, "rafTimer"));
+    private final Timer ncTimer = Constants.METRICS.timer(name(S3DatasetSource.class, "ncTimer"));
     private final AmazonS3 client;
 
     public S3DatasetSource() {
@@ -48,9 +54,16 @@ public class S3DatasetSource implements DatasetSource {
     public NetcdfFile getNetcdfFile(HttpServletRequest req, HttpServletResponse res) throws IOException {
         String s3Url = createS3UrlFromPath(req.getPathInfo());
         LOG.debug("Accessing NetCDF file in S3 on url [{}]", s3Url);
+
+        final Timer.Context rafContext = rafTimer.time();
         S3RandomAccessFile f = new S3RandomAccessFile(client, s3Url);
+        rafContext.stop();
+
+        final Timer.Context ncContext = ncTimer.time();
         IOServiceProvider iosp = new H5iosp();
         NetcdfFile ncf = new NetcdfFileSubclass(iosp, f, null, null);
+        ncContext.stop();
+
         return ncf;
     }
 

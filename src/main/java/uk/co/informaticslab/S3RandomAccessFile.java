@@ -182,5 +182,15 @@ public class S3RandomAccessFile extends RandomAccessFile {
         return metadata.getLastModified().getTime();
     }
 
+    public Map<Long, byte[]> getCache() {
+        return cache;
+    }
 
+    public LinkedList<Long> getIndex() {
+        return index;
+    }
+
+    public ObjectMetadata getMetadata() {
+        return metadata;
+    }
 }
