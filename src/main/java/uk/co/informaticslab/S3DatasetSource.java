@@ -5,7 +5,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.retry.PredefinedRetryPolicies;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,9 @@ import ucar.nc2.iosp.hdf5.H5iosp;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
@@ -32,9 +35,15 @@ public class S3DatasetSource implements DatasetSource {
 
     private final Timer rafTimer = Constants.METRICS.timer(name(S3DatasetSource.class, "rafTimer"));
     private final Timer ncTimer = Constants.METRICS.timer(name(S3DatasetSource.class, "ncTimer"));
+    private final Counter s3DatasetSourceCounter = Constants.METRICS.counter(name(S3DatasetSource.class, "s3DatasetSourceCounter"));
+
     private final AmazonS3 client;
 
+    private Map<String, byte[]> cache = new HashMap<String, byte[]>();
+    private LinkedList<String> index = new LinkedList<String>();
+
     public S3DatasetSource() {
+        s3DatasetSourceCounter.inc();
         ClientConfiguration config = new ClientConfiguration();
         config.setMaxConnections(128);
         config.setMaxErrorRetry(16);
@@ -51,12 +60,13 @@ public class S3DatasetSource implements DatasetSource {
         return isMine;
     }
 
+    @Override
     public NetcdfFile getNetcdfFile(HttpServletRequest req, HttpServletResponse res) throws IOException {
         String s3Url = createS3UrlFromPath(req.getPathInfo());
         LOG.debug("Accessing NetCDF file in S3 on url [{}]", s3Url);
 
         final Timer.Context rafContext = rafTimer.time();
-        S3RandomAccessFile f = new S3RandomAccessFile(client, s3Url);
+        S3RandomAccessFile f = new S3RandomAccessFile(index, cache, client, s3Url);
         rafContext.stop();
 
         final Timer.Context ncContext = ncTimer.time();

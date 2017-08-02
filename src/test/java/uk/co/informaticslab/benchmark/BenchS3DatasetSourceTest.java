@@ -7,7 +7,6 @@ import mockit.Mocked;
 import mockit.Tested;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import ucar.ma2.Array;
@@ -23,11 +22,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(mockit.integration.junit4.JMockit.class)
 public class BenchS3DatasetSourceTest {
 
-    private static final int TEST_COUNT = 1;
+    private static final int TEST_COUNT = 10;
     private static final String TEST_PATH = "/s3/mogreps-g/prods_op_mogreps-g_20160101_00_00_015.nc";
 
     private static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(Constants.METRICS)
@@ -56,6 +56,7 @@ public class BenchS3DatasetSourceTest {
             mockServletRequest.getPathInfo();
             result = TEST_PATH;
         }};
+
     }
 
     @Test
@@ -76,6 +77,7 @@ public class BenchS3DatasetSourceTest {
         List<Variable> all = ncf.getVariables();
         Variable v = all.get(0);
         Array data = v.read();
+        assertEquals(480000, data.getSize());
     }
 
 }

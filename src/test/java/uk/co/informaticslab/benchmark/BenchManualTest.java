@@ -25,10 +25,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
+import static org.junit.Assert.assertTrue;
 
 public class BenchManualTest {
 
-    private static final int TEST_COUNT = 10;
+    private static final int TEST_COUNT = 1;
     private static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(Constants.METRICS)
             .convertRatesTo(TimeUnit.SECONDS)
             .convertDurationsTo(TimeUnit.SECONDS)
@@ -64,15 +65,17 @@ public class BenchManualTest {
     @Test
     public void test() throws IOException {
         for (int i = 0; i < TEST_COUNT; i++) {
-            getNetcdf();
+            NetcdfFile ncf = getNetcdf();
+            assertTrue(ncf instanceof NetcdfFile);
         }
     }
 
-    public void getNetcdf() throws IOException {
+    public NetcdfFile getNetcdf() throws IOException {
         File f = downloadS3File();
         final Timer.Context ncContext = ncTimer.time();
         NetcdfFile ncf = NetcdfFile.open(f.getPath());
         ncContext.stop();
+        return ncf;
     }
 
     public File downloadS3File() throws IOException {
