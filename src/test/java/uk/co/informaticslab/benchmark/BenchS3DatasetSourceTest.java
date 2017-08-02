@@ -1,6 +1,7 @@
 package uk.co.informaticslab.benchmark;
 
 import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.CsvReporter;
 import com.codahale.metrics.Timer;
 import mockit.Expectations;
 import mockit.Mocked;
@@ -17,6 +18,7 @@ import uk.co.informaticslab.S3DatasetSource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(mockit.integration.junit4.JMockit.class)
 public class BenchS3DatasetSourceTest {
 
-    private static final int TEST_COUNT = 10;
+    private static final int TEST_COUNT = 100;
     private static final String TEST_PATH = "/s3/mogreps-g/prods_op_mogreps-g_20160101_00_00_015.nc";
 
     private static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(Constants.METRICS)
@@ -35,7 +37,13 @@ public class BenchS3DatasetSourceTest {
             .convertDurationsTo(TimeUnit.SECONDS)
             .build();
 
+    private static final CsvReporter CSV_REPORTER = CsvReporter.forRegistry(Constants.METRICS)
+            .convertRatesTo(TimeUnit.SECONDS)
+            .convertDurationsTo(TimeUnit.SECONDS)
+            .build(new File("./"));
+
     private final Timer varTimer = Constants.METRICS.timer(name(BenchS3DatasetSourceTest.class, "varTimer"));
+    private final Timer totalTimer = Constants.METRICS.timer(name(BenchS3DatasetSourceTest.class, "totalTimer"));
 
     @Tested
     private S3DatasetSource ds;
@@ -46,6 +54,7 @@ public class BenchS3DatasetSourceTest {
     @AfterClass
     public static void tearDownOnce() {
         REPORTER.report();
+        CSV_REPORTER.report();
     }
 
     @Before
@@ -61,9 +70,11 @@ public class BenchS3DatasetSourceTest {
 
     @Test
     public void test(@Mocked HttpServletResponse mockServletResponse) throws IOException {
+        Timer.Context totalContext = totalTimer.time();
         for (int i = 0; i < TEST_COUNT; i++) {
             makeRequest(mockServletRequest, mockServletResponse);
         }
+        totalContext.stop();
     }
 
     public void makeRequest(HttpServletRequest req, HttpServletResponse res) throws IOException {
@@ -75,9 +86,9 @@ public class BenchS3DatasetSourceTest {
 
     public void readVar(NetcdfFile ncf) throws IOException {
         List<Variable> all = ncf.getVariables();
-        Variable v = all.get(0);
-        Array data = v.read();
-        assertEquals(480000, data.getSize());
+        for (Variable v : all) {
+            Array data = v.read();
+        }
     }
 
 }

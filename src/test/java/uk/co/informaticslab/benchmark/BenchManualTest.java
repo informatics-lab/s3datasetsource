@@ -14,7 +14,9 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import ucar.ma2.Array;
 import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 import uk.co.informaticslab.Constants;
 
 import java.io.File;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -29,14 +32,16 @@ import static org.junit.Assert.assertTrue;
 
 public class BenchManualTest {
 
-    private static final int TEST_COUNT = 1;
+    private static final int TEST_COUNT = 100;
     private static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(Constants.METRICS)
             .convertRatesTo(TimeUnit.SECONDS)
             .convertDurationsTo(TimeUnit.SECONDS)
             .build();
 
-    private final Timer dlTimer = Constants.METRICS.timer(name(BenchManualTest.class, "dlTimer"));
+    private final Timer totalTimer = Constants.METRICS.timer(name(BenchManualTest.class, "totalTimer"));
+    private final Timer readTimer = Constants.METRICS.timer(name(BenchManualTest.class, "readTimer"));
     private final Timer ncTimer = Constants.METRICS.timer(name(BenchManualTest.class, "ncTimer"));
+    private final Timer dlTimer = Constants.METRICS.timer(name(BenchManualTest.class, "dlTimer"));
 
     private static final String BUCKET = "mogreps-g";
     private static final String KEY = "prods_op_mogreps-g_20160101_00_00_015.nc";
@@ -64,14 +69,25 @@ public class BenchManualTest {
 
     @Test
     public void test() throws IOException {
+        Timer.Context totalContext = totalTimer.time();
+        File f = downloadS3File();
         for (int i = 0; i < TEST_COUNT; i++) {
-            NetcdfFile ncf = getNetcdf();
-            assertTrue(ncf instanceof NetcdfFile);
+            NetcdfFile ncf = getNetcdf(f);
+            readVar(ncf);
         }
+        totalContext.stop();
     }
 
-    public NetcdfFile getNetcdf() throws IOException {
-        File f = downloadS3File();
+    public void readVar(NetcdfFile ncf) throws IOException {
+        List<Variable> all = ncf.getVariables();
+        Timer.Context readContext = readTimer.time();
+        for (Variable v : all) {
+            Array data = v.read();
+        }
+        readContext.stop();
+    }
+
+    public NetcdfFile getNetcdf(File f) throws IOException {
         final Timer.Context ncContext = ncTimer.time();
         NetcdfFile ncf = NetcdfFile.open(f.getPath());
         ncContext.stop();

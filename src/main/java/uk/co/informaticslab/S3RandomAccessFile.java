@@ -31,8 +31,8 @@ public class S3RandomAccessFile extends RandomAccessFile {
     private final Counter read_Counter = Constants.METRICS.counter(name(S3RandomAccessFile.class, "read_Counter"));
     private final Counter read__Counter = Constants.METRICS.counter(name(S3RandomAccessFile.class, "read__Counter"));
 
-    public static final int DEFAULT_S3_BUFFER_SIZE = 1 << 19;
-    public static final int DEFAULT_MAX_CACHE_SIZE = 1 << 25;
+    public static final int DEFAULT_S3_BUFFER_SIZE = Constants.MEGABYTE * 2;
+    public static final int DEFAULT_MAX_CACHE_SIZE = Constants.MEGABYTE * 55;
 
     private final AmazonS3URI uri;
     private final AmazonS3 client;
