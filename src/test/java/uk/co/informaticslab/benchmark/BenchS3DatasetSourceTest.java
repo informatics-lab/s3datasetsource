@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(mockit.integration.junit4.JMockit.class)
 public class BenchS3DatasetSourceTest {
 
-    private static final int TEST_COUNT = 100;
+    private static final int TEST_COUNT = 20;
     private static final String TEST_PATH = "/s3/mogreps-g/prods_op_mogreps-g_20160101_00_00_015.nc";
 
     private static final ConsoleReporter REPORTER = ConsoleReporter.forRegistry(Constants.METRICS)
@@ -44,6 +44,7 @@ public class BenchS3DatasetSourceTest {
 
     private final Timer varTimer = Constants.METRICS.timer(name(BenchS3DatasetSourceTest.class, "varTimer"));
     private final Timer totalTimer = Constants.METRICS.timer(name(BenchS3DatasetSourceTest.class, "totalTimer"));
+    private final Timer requestTimer = Constants.METRICS.timer(name(BenchS3DatasetSourceTest.class, "requestTimer"));
 
     @Tested
     private S3DatasetSource ds;
@@ -72,7 +73,9 @@ public class BenchS3DatasetSourceTest {
     public void test(@Mocked HttpServletResponse mockServletResponse) throws IOException {
         Timer.Context totalContext = totalTimer.time();
         for (int i = 0; i < TEST_COUNT; i++) {
+            Timer.Context requestContext = requestTimer.time();
             makeRequest(mockServletRequest, mockServletResponse);
+            requestContext.stop();
         }
         totalContext.stop();
     }

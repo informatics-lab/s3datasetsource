@@ -30,27 +30,20 @@ import static com.codahale.metrics.MetricRegistry.name;
 public class S3DatasetSource implements DatasetSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(S3DatasetSource.class);
-    private static final Regions MY_S3_DATA_REGION = Regions.EU_WEST_2;
+
     private static final String PREFIX = "/s3/";
 
     private final Timer rafTimer = Constants.METRICS.timer(name(S3DatasetSource.class, "rafTimer"));
     private final Timer ncTimer = Constants.METRICS.timer(name(S3DatasetSource.class, "ncTimer"));
     private final Counter s3DatasetSourceCounter = Constants.METRICS.counter(name(S3DatasetSource.class, "s3DatasetSourceCounter"));
 
-    private final AmazonS3 client;
+    private final AmazonS3 client = Constants.getS3Client();
 
     private Map<String, byte[]> cache = new HashMap<String, byte[]>();
     private LinkedList<String> index = new LinkedList<String>();
 
     public S3DatasetSource() {
         s3DatasetSourceCounter.inc();
-        ClientConfiguration config = new ClientConfiguration();
-        config.setMaxConnections(128);
-        config.setMaxErrorRetry(16);
-        config.setConnectionTimeout(100000);
-        config.setSocketTimeout(100000);
-        config.setRetryPolicy(PredefinedRetryPolicies.getDefaultRetryPolicyWithCustomMaxRetries(32));
-        this.client = AmazonS3ClientBuilder.standard().withRegion(MY_S3_DATA_REGION).withClientConfiguration(config).build();
     }
 
     public boolean isMine(HttpServletRequest req) {
