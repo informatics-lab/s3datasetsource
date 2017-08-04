@@ -62,7 +62,9 @@ def write_inventory_names_file(bucket_name, region='eu-west-2'):
                 lines = fin.readlines()
                 for line in lines:
                     file_name = line.decode().split(',')[1].replace('\"', '')
-                    fout.write(file_name+"\n")
+                    if not file_name.endswith("\n"):
+                        file_name += '\n'
+                    fout.write()
 
     return manifest_fname
 
@@ -71,7 +73,8 @@ def update_a_thredds_catalog(local_manifest_fname,
                                 bucket_name,
                                 catalog_file_template,
                                 catalog_file,
-                                templates_dir='/usr/local/src/'):
+                                templates_dir='/usr/local/src/templates/',
+                                xml_dir='/usr/local/tomcat/content/thredds/'):
     """
     takes a local file list of s3 objects ("local_manifest_fname")
     in a bucket ("bucket_name") and writes a THREDDs config file
@@ -86,18 +89,19 @@ def update_a_thredds_catalog(local_manifest_fname,
         obj_names = fin.read().splitlines()
         output_from_parsed_template = template.render(obj_names=obj_names[:10],
                                                       bucket_name=bucket_name)
-    with open(catalog_file, 'w') as fout:
+    with open(xml_dir+catalog_file, 'w') as fout:
         fout.write(output_from_parsed_template)
 
 
 def update_main_thredds_catalog(dataset_names,
-                                catalog_file="catalog"
-                                templates_dir='/usr/local/src/')):
-    loader = jinja.FileSystemLoader('/usr/local/src/')
+                                catalog_file="catalog",
+                                templates_dir="/usr/local/src/templates/",
+                                xml_dir='/usr/local/tomcat/content/thredds/'):
+    loader = jinja.FileSystemLoader(templates_dir)
     env = jinja.Environment(loader=loader)
     template = env.get_template(catalog_file+".jinja")
     output_from_parsed_template = template.render(dataset_names=dataset_names)
-    with open(catalog_file+".xml", 'w') as fout:
+    with open(xml_dir+catalog_file+".xml", 'w') as fout:
         fout.write(output_from_parsed_template)
     
 
@@ -112,7 +116,7 @@ if __name__=='__main__':
     """
     print("Getting inventory from s3 for...")
 
-    datset_names = sys.argv[1:]
+    dataset_names = sys.argv[1:]
     
     for dataset_name in dataset_names:
         print(dataset_name)

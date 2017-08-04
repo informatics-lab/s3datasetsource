@@ -7,23 +7,8 @@
       http://www.unidata.ucar.edu/schemas/thredds/InvCatalog.1.0.6.xsd">
 
     <!-- url path to match with bucket/key in aws -->
-    {% for obj_name in obj_names %}
-    <dataset name="{{obj_name}}" ID="{{obj_name}}" serviceName="odap" urlPath="s3/{{bucket_name}}/{{obj_name}}" />
-
+    {% for dataset_name in dataset_names %}
+    <catalogRef xlink:title="{{dataset_name}}" xlink:href="{{dataset_name}}.xml" name="{{dataset_name}}"/>
+    
     {% endfor %}
-
-    <service name="all" base="" serviceType="compound">
-        <service name="odap" serviceType="OpenDAP" base="/thredds/dodsC/" />
-        <service name="dap4" serviceType="DAP4" base="/thredds/dap4/" />
-        <service name="http" serviceType="HTTPServer" base="/thredds/fileServer/" />
-        <!--service name="wcs" serviceType="WCS" base="/thredds/wcs/" /-->
-        <!--service name="wms" serviceType="WMS" base="/thredds/wms/" /-->
-        <!--service name="ncss" serviceType="NetcdfSubset" base="/thredds/ncss/" /-->
-    </service>
-
-    <service name="dap" base="" serviceType="compound">
-        <service name="odap" serviceType="OpenDAP" base="/thredds/dodsC/" />
-        <service name="dap4" serviceType="DAP4" base="/thredds/dap4/" />
-    </service>
-<catalogRef xlink:href="test.xml" xlink:title="GOMTOX (Gulf of Maine) Ocean Model" name=""/>
 </catalog>
