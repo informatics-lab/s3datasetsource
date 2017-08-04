@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: s3-opendap 
+spec:
+  template:
+    metadata:
+      labels:
+        name: s3-opendap
+    spec:
+      containers:
+      - image: informaticslab/s3datasetsource
+        imagePullPolicy: Always
+        name: s3datasetsource
+        ports:
+        - containerPort: 8080
+          hostPort: 8080
