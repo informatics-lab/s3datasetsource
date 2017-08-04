@@ -3,3 +3,6 @@ aws.env
 target
 s3datasetsource.iml
 uk.co.informaticslab.*
+charles.cer
+charles.pem
+*.iml

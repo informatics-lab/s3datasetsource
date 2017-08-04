@@ -23,6 +23,17 @@ Store your AWS credentials in a file called `aws.env` in the root directory. You
 
 The data can then be seen at `http://localhost/thredds/catalogue.html
 
+## Charles proxying
+
+Download the Charles root ca in both pem and cer formats and save in the root of the project as `charles.cer` and `charles.pem`.
+Do this before running docker compose.
+If running Iris localally also set the http and https proxy variables in your shell
+```
+export http_proxy=http://localhost:8888
+export https_proxy=http://localhost:8888
+```
+   
+
 ### Credit  
 [@jamesmcclain](https://github.com/jamesmcclain) original author of S3RandomAccessFile.
 

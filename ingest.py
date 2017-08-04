@@ -72,6 +72,7 @@ def update_threeds_catalogue(local_manifest_fname, catalogue_file_template, cata
     
     with open(local_manifest_fname, 'r') as fin:
         obj_names = fin.read().splitlines()
+        obj_names = [n for n in obj_names if n[-3:] =='.nc'][:10]
         output_from_parsed_template = template.render(obj_names=obj_names,
                                                       bucket_name='mogreps-g')
     with open(catalogue_file, 'w') as fout:

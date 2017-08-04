@@ -3,6 +3,10 @@ version: '2'
 services:
  thredds:
     build: .
+    entrypoint:
+      - /bin/bash
+    stdin_open: true
+    tty: true
     env_file:
       - ./aws.env
     environment:
