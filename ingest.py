@@ -64,7 +64,7 @@ def write_inventory_names_file(bucket_name, region='eu-west-2'):
                     file_name = line.decode().split(',')[1].replace('\"', '')
                     if not file_name.endswith("\n"):
                         file_name += '\n'
-                    fout.write()
+                    fout.write(file_name)
 
     return manifest_fname
 
