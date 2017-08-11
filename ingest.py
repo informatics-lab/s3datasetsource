@@ -11,6 +11,7 @@ import jinja2 as jinja
 import json
 import hashlib
 import sys
+from botocore.handlers import disable_signing
 
 """
 This file updates the file catalogue of a THREDDS/OpenDAP
@@ -30,15 +31,15 @@ def write_inventory_names_file(bucket_name, region='eu-west-2'):
     in a list.
 
     """
-    s3 = boto.resource('s3',
-                        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-                        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'])
+    s3 = boto.resource('s3')
+    s3.meta.client.meta.events.register('choose-signer.s3.*', disable_signing)
     bucket = s3.Bucket(bucket_name)
 
     now = datetime.datetime.now()-datetime.timedelta(days=1) #incase todays hasn't happened yet
-    inventory_name_prefix = "{:}-{:02}-{:02}T".format(now.year, now.month, now.day)
+
+    inventory_name_prefix = "manifest/{:}-{:02}-{:02}".format(now.year, now.month, now.day)
     print("Getting manifest for " + inventory_name_prefix)
-    filt_objects = bucket.objects.filter(Prefix=bucket_name+'/'+bucket_name+'/'+inventory_name_prefix)
+    filt_objects = bucket.objects.filter(Prefix=inventory_name_prefix)
     filt_object_keys = [filt_object.key for filt_object in filt_objects]
     [manifest_key] = [filt_object_key for filt_object_key in filt_object_keys if filt_object_key.endswith('json')]
 

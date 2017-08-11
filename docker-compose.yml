@@ -3,8 +3,6 @@ version: '2'
 services:
  thredds:
     build: .
-    env_file:
-      - ./aws.env
     environment:
       - PYTHONUNBUFFERED=1
     ports:

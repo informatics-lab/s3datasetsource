@@ -4,3 +4,4 @@ target
 s3datasetsource.iml
 uk.co.informaticslab.*
 metrics
+**/*.iml
