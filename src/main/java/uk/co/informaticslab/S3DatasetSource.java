@@ -39,8 +39,7 @@ public class S3DatasetSource implements DatasetSource {
 
     private final AmazonS3 client = Constants.getS3Client();
 
-    private Map<String, byte[]> cache = new HashMap<String, byte[]>();
-    private LinkedList<String> index = new LinkedList<String>();
+    private LocalCache cache = new LocalCache();
 
     public S3DatasetSource() {
         s3DatasetSourceCounter.inc();
@@ -59,7 +58,7 @@ public class S3DatasetSource implements DatasetSource {
         LOG.debug("Accessing NetCDF file in S3 on url [{}]", s3Url);
 
         final Timer.Context rafContext = rafTimer.time();
-        S3RandomAccessFile f = new S3RandomAccessFile(index, cache, client, s3Url);
+        S3RandomAccessFile f = new S3RandomAccessFile(cache, client, s3Url);
         rafContext.stop();
 
         final Timer.Context ncContext = ncTimer.time();

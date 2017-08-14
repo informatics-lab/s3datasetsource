@@ -19,16 +19,14 @@ public class S3RandomAccessFileTest {
 
     private AmazonS3 client;
     private S3RandomAccessFile raf;
-    private Map<String, byte[]> cache;
-    private LinkedList<String> index;
+    private LocalCache cache;
 
 
     @Before
     public void setUp() throws IOException {
         client = AmazonS3ClientBuilder.standard().withRegion(Regions.EU_WEST_2).build();
-        cache = new HashMap<>();
-        index = new LinkedList<>();
-        raf = new S3RandomAccessFile(index, cache, client, URL);
+        cache = new LocalCache();
+        raf = new S3RandomAccessFile(cache, client, URL);
     }
 
     @Test

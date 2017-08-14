@@ -6,7 +6,6 @@ import com.palantir.docker.compose.connection.DockerPort;
 import com.palantir.docker.compose.connection.waiting.HealthChecks;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -55,7 +54,7 @@ public class DockerIntegrationTest {
         for (String request : requests) {
             File response = makeHttpRequest(endpoint + request);
             assertTrue(response.length() > 0);
-            System.out.println("done "+ endpoint + request);
+            System.out.println("done " + endpoint + request);
         }
     }
 

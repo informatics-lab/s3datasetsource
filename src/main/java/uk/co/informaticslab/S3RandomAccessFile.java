@@ -32,7 +32,6 @@ public class S3RandomAccessFile extends RandomAccessFile {
     private final Counter read__Counter = Constants.METRICS.counter(name(S3RandomAccessFile.class, "read__Counter"));
 
     public static final int DEFAULT_S3_BUFFER_SIZE = Constants.MEGABYTE * 2;
-    public static final int DEFAULT_MAX_CACHE_SIZE = Constants.MEGABYTE * 55;
 
     private final AmazonS3URI uri;
     private final AmazonS3 client;
@@ -43,30 +42,23 @@ public class S3RandomAccessFile extends RandomAccessFile {
     private int cacheBlockSize = -1;
     private int maxCacheBlocks = -1;
 
-    private Map<String, byte[]> cache;
-    private LinkedList<String> index;
+    private Cache cache;
 
-    public S3RandomAccessFile(LinkedList index, Map cache, AmazonS3 client, String url) throws IOException {
-        this(index, cache, client, url, DEFAULT_S3_BUFFER_SIZE);
+    public S3RandomAccessFile(Cache cache, AmazonS3 client, String url) throws IOException {
+        this(cache, client, url, DEFAULT_S3_BUFFER_SIZE);
     }
 
-    public S3RandomAccessFile(LinkedList index, Map cache, AmazonS3 client, String url, int bufferSize) throws IOException {
-        this(index, cache, client, url, bufferSize, DEFAULT_MAX_CACHE_SIZE);
-    }
-
-    public S3RandomAccessFile(LinkedList index, Map cache, AmazonS3 client, String url, int bufferSize, int maxCacheSize) throws IOException {
+    public S3RandomAccessFile(Cache cache, AmazonS3 client, String url, int bufferSize) throws IOException {
         super(bufferSize);
         s3RandomAccessFileCounter.inc();
         this.cache = cache;
-        this.index = index;
         this.file = null;
         this.location = url;
 
-
         // Only enable cache if given size is at least twice the buffer size
-        if (maxCacheSize >= 2 * bufferSize) {
-            this.cacheBlockSize = 2 * bufferSize;
-            this.maxCacheBlocks = maxCacheSize / this.cacheBlockSize;
+        if (cache.getMaxCacheSize() >= 2 * bufferSize) {
+            this.cacheBlockSize = 2 * bufferSize; //TODO does this need to be twice the buffer size?
+            this.maxCacheBlocks = cache.getMaxCacheSize() / this.cacheBlockSize;
         } else {
             this.cacheBlockSize = this.maxCacheBlocks = -1;
         }
@@ -76,11 +68,6 @@ public class S3RandomAccessFile extends RandomAccessFile {
         this.bucket = uri.getBucket();
         this.key = uri.getKey();
         this.metadata = client.getObjectMetadata(bucket, key); // does a head request on the data
-    }
-
-    public void close() throws IOException {
-//        cache.clear();
-//        index.clear();
     }
 
     /**
@@ -96,12 +83,6 @@ public class S3RandomAccessFile extends RandomAccessFile {
 
             read__(position, buffer, 0, cacheBlockSize);
             cache.put(getCacheKey(key), buffer);
-            index.add(getCacheKey(key));
-            assert (cache.size() == index.size());
-            while (cache.size() > maxCacheBlocks) {
-                String id = index.removeFirst();
-                cache.remove(id);
-            }
 
             return;
         }
@@ -129,6 +110,7 @@ public class S3RandomAccessFile extends RandomAccessFile {
         read_Counter.inc();
 
         if (!(cacheBlockSize > 0) || !(maxCacheBlocks > 0)) {
+            //if we are not using a cache just perform the byte range request and return the bytes.
             return read__(pos, buff, offset, len);
         }
 
