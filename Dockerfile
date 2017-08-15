@@ -3,7 +3,7 @@ RUN mkdir /build
 COPY . /build
 WORKDIR /build
 RUN mvn clean install
-RUN ls /build/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar
+RUN ls -l /build/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar
 CMD echo "done"
 
 
@@ -15,5 +15,6 @@ COPY threddsConfig.xml /usr/local/tomcat/content/thredds/threddsConfig.xml
 COPY ./src/templates/ /usr/local/src/templates/
 COPY go.sh /go.sh
 COPY --from=0 /build/target/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar /usr/local/tomcat/webapps/thredds/WEB-INF/lib/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar
+RUN ls -l /usr/local/tomcat/webapps/thredds/WEB-INF/lib/s3datasetsource-1.0-SNAPSHOT-jar-with-dependencies.jar
 ENTRYPOINT [""]
 CMD ["/go.sh"]

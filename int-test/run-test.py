@@ -8,24 +8,28 @@ import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--filter", help="RegEx: Only tests that match will run")
+parser.add_argument("--skipBuild", default='false', help="Bool: skipp the container build stage. Assume containers built and avaliable.")
 args = parser.parse_args()
-print(args)
+
 test_filter = None
 if(args.filter):
     test_filter = re.compile(args.filter)
 
+skipBuild = True if args.skipBuild.lower() == 'true' else False
 
 FILTER = 'TEST_EVENT:'
-# path = sys.argv[1] if len(sys.argv[1]) > 0 else '*'
-os.chdir(os.path.dirname(__file__))
-containers = os.listdir('containers')
-os.chdir('containers')
-for container in containers:
-    os.chdir(container)
-    subprocess.run(["docker","build", "-t", "iris","."])
-    os.chdir('..')
 
-os.chdir('..')
+os.chdir(os.path.dirname(__file__))
+
+if not skipBuild:    
+    containers = os.listdir('containers')
+    os.chdir('containers')
+    for container in containers:
+        os.chdir(container)
+        subprocess.run(["docker","build", "-t", "iris","."])
+        os.chdir('..')
+
+    os.chdir('..')
 
 tests = os.listdir('tests')
 os.chdir('tests')
