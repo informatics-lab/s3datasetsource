@@ -9,19 +9,17 @@ import com.codahale.metrics.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ucar.unidata.io.RandomAccessFile;
+import uk.co.informaticslab.cache.Cache;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.util.LinkedList;
-import java.util.Map;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
 /**
  * Provides random access to files in S3 via byte ranged requests.
- * <p>
  * originally written by @jamesmcclain
  */
 public class S3RandomAccessFile extends RandomAccessFile {
@@ -39,8 +37,8 @@ public class S3RandomAccessFile extends RandomAccessFile {
     private final String key;
     private final ObjectMetadata metadata;
 
+    private boolean cacheEnabled = false;
     private int cacheBlockSize = -1;
-    private int maxCacheBlocks = -1;
 
     private Cache cache;
 
@@ -56,18 +54,17 @@ public class S3RandomAccessFile extends RandomAccessFile {
         this.location = url;
 
         // Only enable cache if given size is at least twice the buffer size
-        if (cache.getMaxCacheSize() >= 2 * bufferSize) {
+        // null value is infinite cache
+        if (cache != null && (cache.getMaxCacheSize() == null || cache.getMaxCacheSize() >= 2 * bufferSize)) {
+            this.cacheEnabled = true;
             this.cacheBlockSize = 2 * bufferSize; //TODO does this need to be twice the buffer size?
-            this.maxCacheBlocks = cache.getMaxCacheSize() / this.cacheBlockSize;
-        } else {
-            this.cacheBlockSize = this.maxCacheBlocks = -1;
         }
 
         this.client = client;
         this.uri = new AmazonS3URI(url);
         this.bucket = uri.getBucket();
         this.key = uri.getKey();
-        this.metadata = client.getObjectMetadata(bucket, key); // does a head request on the data
+        this.metadata = client.getObjectMetadata(bucket, key); // does a head request on the s3 file
     }
 
     /**
@@ -109,8 +106,8 @@ public class S3RandomAccessFile extends RandomAccessFile {
     protected int read_(long pos, byte[] buff, int offset, int len) throws IOException {
         read_Counter.inc();
 
-        if (!(cacheBlockSize > 0) || !(maxCacheBlocks > 0)) {
-            //if we are not using a cache just perform the byte range request and return the bytes.
+        if (!cacheEnabled) {
+            //we are not using a cache just perform the byte range request and return the bytes.
             return read__(pos, buff, offset, len);
         }
 

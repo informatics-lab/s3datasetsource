@@ -1,10 +1,6 @@
 package uk.co.informaticslab;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.retry.PredefinedRetryPolicies;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
@@ -14,13 +10,11 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.NetcdfFileSubclass;
 import ucar.nc2.iosp.IOServiceProvider;
 import ucar.nc2.iosp.hdf5.H5iosp;
+import uk.co.informaticslab.cache.LocalCache;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 
 import static com.codahale.metrics.MetricRegistry.name;
 

@@ -1,4 +1,6 @@
-package uk.co.informaticslab;
+package uk.co.informaticslab.cache;
+
+import uk.co.informaticslab.Constants;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,7 +36,7 @@ public class LocalCache implements Cache<String, byte[]> {
         assert (map.size() == index.size());
         currentCacheSize = currentCacheSize + value.length;
 
-        while(currentCacheSize > maxCacheSize) {
+        while (currentCacheSize > maxCacheSize) {
             String k = index.removeFirst();
             byte[] v = map.remove(k);
             currentCacheSize = currentCacheSize - v.length;
@@ -52,7 +54,7 @@ public class LocalCache implements Cache<String, byte[]> {
     }
 
     @Override
-    public int getMaxCacheSize() {
+    public Integer getMaxCacheSize() {
         return maxCacheSize;
     }
 }

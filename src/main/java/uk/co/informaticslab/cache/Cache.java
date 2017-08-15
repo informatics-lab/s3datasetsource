@@ -1,4 +1,4 @@
-package uk.co.informaticslab;
+package uk.co.informaticslab.cache;
 
 public interface Cache<K, V> {
 
@@ -33,6 +33,6 @@ public interface Cache<K, V> {
      * Gets the maximum number of bytes that can be in the cache at any given moment.
      * @return maximum cache size
      */
-    int getMaxCacheSize();
+    Integer getMaxCacheSize();
 
 }

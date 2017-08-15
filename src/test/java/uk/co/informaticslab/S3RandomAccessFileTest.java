@@ -5,11 +5,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.informaticslab.cache.LocalCache;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +18,6 @@ public class S3RandomAccessFileTest {
     private AmazonS3 client;
     private S3RandomAccessFile raf;
     private LocalCache cache;
-
 
     @Before
     public void setUp() throws IOException {

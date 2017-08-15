@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(mockit.integration.junit4.JMockit.class)
 public class BenchS3DatasetSourceTest {
