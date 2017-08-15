@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  test:
+    image: iris
+    volumes:
+      - .:/tests
+    networks:
+      - s3datasetsource_default
+
+networks:
+  s3datasetsource_default:
+    external: true
