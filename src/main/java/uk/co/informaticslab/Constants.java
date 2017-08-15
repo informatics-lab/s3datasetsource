@@ -1,6 +1,8 @@
 package uk.co.informaticslab;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.retry.PredefinedRetryPolicies;
 import com.amazonaws.services.s3.AmazonS3;
@@ -22,7 +24,10 @@ public final class Constants {
         config.setConnectionTimeout(100000);
         config.setSocketTimeout(100000);
         config.setRetryPolicy(PredefinedRetryPolicies.getDefaultRetryPolicyWithCustomMaxRetries(32));
-        return AmazonS3ClientBuilder.standard().withRegion(MY_S3_DATA_REGION).withClientConfiguration(config).build();
+        return AmazonS3ClientBuilder.standard()
+            .withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
+            .withRegion(MY_S3_DATA_REGION)
+            .withClientConfiguration(config).build();
     }
 
     private Constants () {
