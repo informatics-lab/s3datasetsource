@@ -87,7 +87,7 @@ def update_a_thredds_catalog(local_manifest_fname,
     template = env.get_template(catalog_file_template)
     
     with open(local_manifest_fname, 'r') as fin:
-        obj_names = fin.read().splitlines()
+        obj_names = [obj for obj in fin.read().splitlines() if obj.endswith('nc')]
         output_from_parsed_template = template.render(obj_names=obj_names[:10],
                                                       bucket_name=bucket_name)
     with open(xml_dir+catalog_file, 'w') as fout:
