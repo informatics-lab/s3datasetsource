@@ -90,9 +90,9 @@ public class S3RandomAccessFile extends RandomAccessFile {
     private void ensure(Long key) throws IOException {
         if (!cache.containsKey(getCacheKey(key))) {
             long position = key.longValue() * cacheBlockSize;
-            int toEOF = (int) (length() - position);
-            int bytes = toEOF < cacheBlockSize ? toEOF : cacheBlockSize;
-            byte[] buffer = new byte[bytes];
+            long toEOF = (length() - position);
+            long bytes = toEOF < cacheBlockSize ? toEOF : cacheBlockSize;
+            byte[] buffer = new byte[(int) bytes];
 
             read__(position, buffer, 0, cacheBlockSize);
             cache.put(getCacheKey(key), buffer);
