@@ -24,9 +24,10 @@ Store your AWS credentials in a file called `aws.env` in the root directory. You
 The data can then be seen at `http://localhost/thredds/catalogue.html
 
 ### Credit  
-[@jamesmcclain](https://github.com/jamesmcclain) original author of S3RandomAccessFile.
+[@jamesmcclain](https://github.com/jamesmcclain) original author of [S3RandomAccessFile][4].
 
 [1]: https://github.com/Unidata/thredds
 [2]: http://www.unidata.ucar.edu/software/thredds/current/tds/reference/DatasetSource.html
 [3]: http://www.unidata.ucar.edu/software/thredds/current/tds/
+[4]: https://github.com/Unidata/thredds/pull/832/files#diff-fd2b60e4477724acec18731154b8db0a
 
